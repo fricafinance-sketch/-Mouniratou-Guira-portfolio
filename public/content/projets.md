@@ -8,6 +8,8 @@ Découvrez les projets marquants sur lesquels j'ai travaillé, illustrant mon pa
 
 Lors de mon stage à la **Radiodiffusion Télévision du Burkina**, j'ai été au cœur de la machine médiatique nationale. J'ai participé activement à la chaîne de production, de l'idée éditoriale à la diffusion finale.
 
+![RTB Production](https://i.imgur.com/6NxYm8f.jpeg)
+
 - **Technologies utilisées** : 
   - Matériel de tournage professionnel (Caméras d'épaule, micros HF)
   - Logiciels de montage audiovisuel
@@ -23,6 +25,8 @@ Lors de mon stage à la **Radiodiffusion Télévision du Burkina**, j'ai été a
 ### 2. Communication & Relation Client (KIBI GROUP)
 
 En tant qu'apprentie assistante communication, j'ai joué un rôle pivot dans la coordination des projets et la gestion de l'image de marque de l'entreprise.
+
+![KIBI GROUP Communication](https://i.imgur.com/zMhSaIA.jpeg)
 
 - **Technologies utilisées** : 
   - **Canva** pour la création de supports visuels rapides

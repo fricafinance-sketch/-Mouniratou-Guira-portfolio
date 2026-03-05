@@ -19,7 +19,11 @@ import {
   Share2,
   Palette,
   BarChart3,
-  ClipboardList
+  ClipboardList,
+  Quote,
+  ExternalLink,
+  Search,
+  Filter
 } from 'lucide-react';
 
 // --- Components ---
@@ -39,22 +43,7 @@ const Navbar = () => {
     { name: 'Accueil', href: '/' },
     { name: 'Compétences', href: '/competences' },
     { name: 'Projets', href: '/projets' },
-    { name: 'Contact', href: '/#contact' },
   ];
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('/#')) {
-      const id = href.substring(2);
-      if (location.pathname === '/') {
-        e.preventDefault();
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-          setIsOpen(false);
-        }
-      }
-    }
-  };
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled || location.pathname !== '/' ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
@@ -63,18 +52,18 @@ const Navbar = () => {
           MG<span className="text-turquoise">.</span>
         </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
-                to={link.href} 
-                className={`nav-link ${location.pathname === link.href ? 'text-turquoise' : ''}`}
-                onClick={(e) => handleNavClick(e, link.href)}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center space-x-8">
+          {navLinks.map((link) => (
+            <Link 
+              key={link.name} 
+              to={link.href} 
+              className={`nav-link ${location.pathname === link.href ? 'text-turquoise' : ''}`}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </div>
 
         {/* Mobile Toggle */}
         <button className="md:hidden text-gray-900" onClick={() => setIsOpen(!isOpen)}>
@@ -97,12 +86,7 @@ const Navbar = () => {
                   key={link.name}
                   to={link.href}
                   className={`text-lg font-medium ${location.pathname === link.href ? 'text-turquoise' : 'text-gray-600'}`}
-                  onClick={(e) => {
-                    handleNavClick(e, link.href);
-                    if (!link.href.startsWith('/#') || location.pathname !== '/') {
-                      setIsOpen(false);
-                    }
-                  }}
+                  onClick={() => setIsOpen(false)}
                 >
                   {link.name}
                 </Link>
@@ -228,22 +212,6 @@ const Hero = () => {
           {/* Decorative elements */}
           <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-turquoise/10 rounded-full blur-3xl -z-10" />
           <div className="absolute -top-6 -left-6 w-24 h-24 bg-turquoise/5 rounded-full blur-2xl -z-10" />
-          
-          <motion.div 
-            animate={{ y: [0, -15, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-12 -right-12 text-turquoise/20 hidden lg:block"
-          >
-            <Globe size={80} />
-          </motion.div>
-          
-          <motion.div 
-            animate={{ y: [0, 15, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-12 -left-12 text-turquoise/20 hidden lg:block"
-          >
-            <Share2 size={60} />
-          </motion.div>
         </motion.div>
       </div>
       
@@ -428,29 +396,12 @@ const ExperienceList = ({ children }: any) => (
 );
 
 const ExperienceItem = ({ children }: any) => {
-  // Extract company name (first bold item usually)
-  const getText = (node: any): string => {
-    if (typeof node === 'string') return node;
-    if (Array.isArray(node)) return node.map(getText).join(' ');
-    if (React.isValidElement(node)) return getText((node as any).props.children);
-    return '';
-  };
-
-  const fullText = getText(children);
-  const companyName = fullText.split('\n')[0].trim() || 'Expérience';
-  const initial = companyName.charAt(0).toUpperCase();
-
   return (
     <motion.div 
       whileHover={{ y: -5 }}
-      className="card group flex flex-col md:flex-row gap-6 items-start"
+      className="card group"
     >
-      <div className="w-14 h-14 shrink-0 rounded-xl bg-gray-900 text-white flex items-center justify-center text-xl font-bold shadow-lg group-hover:bg-turquoise transition-colors">
-        {initial}
-      </div>
-      <div className="flex-grow">
-        {children}
-      </div>
+      {children}
     </motion.div>
   );
 };
@@ -493,6 +444,108 @@ const SkillItem = ({ children }: any) => {
   );
 };
 
+const Testimonials = () => {
+  const testimonials = [
+    {
+      name: "Tuteur de Stage",
+      role: "RTB Bobo-Dioulasso",
+      content: "Mouniratou a fait preuve d'une grande curiosité et d'une capacité d'adaptation remarquable lors de sa mission à la RTB.",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+    },
+    {
+      name: "Responsable Communication",
+      role: "KIBI GROUP",
+      content: "Une collaboration fructueuse. Son sens de l'organisation et sa créativité sur Canva ont été de réels atouts pour l'équipe.",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka"
+    }
+  ];
+
+  return (
+    <section className="section-container bg-gray-50 rounded-[3rem] my-24">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Témoignages</h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">Ce que disent mes collaborateurs et tuteurs de mes expériences passées.</p>
+      </div>
+      <div className="grid md:grid-cols-2 gap-8">
+        {testimonials.map((t, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative"
+          >
+            <Quote className="absolute top-6 right-8 text-turquoise/10" size={48} />
+            <p className="text-gray-700 italic mb-8 relative z-10">"{t.content}"</p>
+            <div className="flex items-center space-x-4">
+              <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full bg-gray-100" />
+              <div>
+                <h4 className="font-bold text-gray-900">{t.name}</h4>
+                <p className="text-sm text-gray-500">{t.role}</p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const BlogSection = () => {
+  const posts = [
+    {
+      title: "L'évolution des médias au Burkina Faso",
+      date: "Mars 2024",
+      excerpt: "Analyse des transformations numériques dans le paysage médiatique burkinabè.",
+      category: "Analyse"
+    },
+    {
+      title: "La communication institutionnelle en temps de crise",
+      date: "Janvier 2024",
+      excerpt: "Comment les organisations adaptent leur discours face aux enjeux contemporains.",
+      category: "Stratégie"
+    }
+  ];
+
+  return (
+    <section className="section-container my-24">
+      <div className="flex justify-between items-end mb-12">
+        <div>
+          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Veille & Réflexions</h2>
+          <p className="text-gray-600">Partage de mes analyses sur le monde de la communication.</p>
+        </div>
+        <button className="hidden md:flex items-center text-turquoise font-bold hover:underline">
+          Voir tout <ChevronRight size={20} />
+        </button>
+      </div>
+      <div className="grid md:grid-cols-2 gap-8">
+        {posts.map((post, i) => (
+          <motion.div 
+            key={i}
+            whileHover={{ y: -10 }}
+            className="group cursor-pointer"
+          >
+            <div className="bg-gray-100 aspect-video rounded-3xl mb-6 overflow-hidden relative">
+              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-turquoise">
+                {post.category}
+              </div>
+              <div className="w-full h-full bg-gradient-to-br from-turquoise/20 to-gray-200 group-hover:scale-110 transition-transform duration-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-turquoise transition-colors">{post.title}</h3>
+            <p className="text-gray-600 mb-4 line-clamp-2">{post.excerpt}</p>
+            <div className="flex items-center text-sm text-gray-400 font-medium">
+              <span>{post.date}</span>
+              <span className="mx-2">•</span>
+              <span>5 min de lecture</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 const FormationList = ({ children }: any) => (
   <div className="relative pl-8 border-l-2 border-gray-100 space-y-12">
     {children}
@@ -511,59 +564,74 @@ const FormationItem = ({ children }: any) => (
   </motion.div>
 );
 
-// --- Pages ---
+const ContactForm = () => {
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success'>('idle');
 
-const ToolsSection = () => {
-  const tools = [
-    { name: 'Canva', icon: Palette, color: 'bg-blue-500' },
-    { name: 'Adobe', icon: Globe, color: 'bg-red-500' },
-    { name: 'TikTok', icon: Share2, color: 'bg-black' },
-    { name: 'Instagram', icon: Share2, color: 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500' },
-    { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-700' },
-    { name: 'Office', icon: Briefcase, color: 'bg-orange-600' },
-  ];
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('sending');
+    setTimeout(() => setStatus('success'), 1500);
+  };
+
+  if (status === 'success') {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="card bg-turquoise/5 border-turquoise/20 text-center py-12"
+      >
+        <div className="w-16 h-16 bg-turquoise text-white rounded-full flex items-center justify-center mx-auto mb-6">
+          <Send size={32} />
+        </div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Message envoyé !</h3>
+        <p className="text-gray-600 mb-8">Merci pour votre message. Je reviendrai vers vous très prochainement.</p>
+        <button 
+          onClick={() => setStatus('idle')}
+          className="text-turquoise font-bold hover:underline"
+        >
+          Envoyer un autre message
+        </button>
+      </motion.div>
+    );
+  }
 
   return (
-    <section className="py-20 bg-gray-50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Outils & Plateformes</h2>
-          <div className="w-16 h-1 bg-turquoise mx-auto"></div>
-        </div>
-        
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-          {tools.map((tool) => (
-            <motion.div
-              key={tool.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.1 }}
-              className="flex flex-col items-center group cursor-default"
-            >
-              <div className={`w-16 h-16 rounded-2xl ${tool.color} flex items-center justify-center text-white shadow-lg mb-4 transition-transform group-hover:rotate-6`}>
-                <tool.icon size={30} />
-              </div>
-              <span className="text-sm font-semibold text-gray-600 uppercase tracking-wider">{tool.name}</span>
-            </motion.div>
-          ))}
-        </div>
+    <motion.form
+      initial={{ opacity: 0, x: 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      className="card space-y-4"
+      onSubmit={handleSubmit}
+    >
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+        <input required type="text" className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-turquoise focus:border-transparent outline-none transition-all" placeholder="Votre nom" />
       </div>
-    </section>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input required type="email" className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-turquoise focus:border-transparent outline-none transition-all" placeholder="votre@email.com" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+        <textarea required rows={4} className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-turquoise focus:border-transparent outline-none transition-all" placeholder="Votre message..."></textarea>
+      </div>
+      <button 
+        type="submit" 
+        disabled={status === 'sending'}
+        className="btn-primary w-full flex items-center justify-center disabled:opacity-50"
+      >
+        {status === 'sending' ? 'Envoi en cours...' : 'Envoyer'} <Send size={18} className="ml-2" />
+      </button>
+    </motion.form>
   );
 };
+
+// --- Pages ---
 
 const HomePage = () => (
   <>
     <Hero />
-    <ToolsSection />
-    <MarkdownSection 
-      id="profil" 
-      title="Profil" 
-      file="profil.md" 
-      icon={User} 
-      className="bg-gray-50/50"
-    />
+    <MarkdownSection id="profil" title="Profil Professionnel" file="profil.md" icon={User} />
     <MarkdownSection 
       id="experiences" 
       title="Expériences" 
@@ -579,12 +647,13 @@ const HomePage = () => (
       title="Formation" 
       file="formation.md" 
       icon={GraduationCap}
-      className="bg-gray-50"
       components={{
         ul: FormationList,
         li: FormationItem
       }}
     />
+    <Testimonials />
+    <BlogSection />
     <section id="contact" className="section-container">
       <div className="grid md:grid-cols-2 gap-12">
         <motion.div
@@ -596,58 +665,23 @@ const HomePage = () => (
           <p className="text-gray-600 mb-8 leading-relaxed">
             N'hésitez pas à me contacter pour toute opportunité de stage, de collaboration ou simplement pour échanger sur la communication et les médias.
           </p>
-          
-          <div className="space-y-6 mb-12">
-            <a href="mailto:mouniratouguira2000@gmail.com" className="flex items-center space-x-4 group">
-              <div className="w-12 h-12 rounded-xl bg-turquoise/10 text-turquoise flex items-center justify-center group-hover:bg-turquoise group-hover:text-white transition-all"><Mail size={22} /></div>
-              <span className="text-gray-700 font-medium group-hover:text-turquoise transition-colors">mouniratouguira2000@gmail.com</span>
-            </a>
-            <a href="tel:0759312539" className="flex items-center space-x-4 group">
-              <div className="w-12 h-12 rounded-xl bg-turquoise/10 text-turquoise flex items-center justify-center group-hover:bg-turquoise group-hover:text-white transition-all"><Phone size={22} /></div>
-              <span className="text-gray-700 font-medium group-hover:text-turquoise transition-colors">07 59 31 25 39</span>
-            </a>
+          <div className="space-y-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-turquoise/10 text-turquoise flex items-center justify-center"><MapPin size={22} /></div>
-              <span className="text-gray-700 font-medium">Île-de-France (mobilité nationale)</span>
+              <div className="w-10 h-10 rounded-full bg-turquoise/10 text-turquoise flex items-center justify-center"><Mail size={20} /></div>
+              <span className="text-gray-700">mouniratouguira2000@gmail.com</span>
             </div>
-          </div>
-
-          <div className="pt-8 border-t border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase tracking-wider">Retrouvez-moi sur</h3>
-            <div className="flex space-x-4">
-              <a href="#" className="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center hover:bg-turquoise transition-all shadow-lg">
-                <Linkedin size={22} />
-              </a>
-              <a href="#" className="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center hover:bg-turquoise transition-all shadow-lg">
-                <Share2 size={22} />
-              </a>
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-full bg-turquoise/10 text-turquoise flex items-center justify-center"><Phone size={20} /></div>
+              <span className="text-gray-700">07 59 31 25 39</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-full bg-turquoise/10 text-turquoise flex items-center justify-center"><MapPin size={20} /></div>
+              <span className="text-gray-700">Île-de-France (mobilité nationale)</span>
             </div>
           </div>
         </motion.div>
 
-        <motion.form
-          initial={{ opacity: 0, x: 20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          className="card space-y-4"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
-            <input type="text" className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-turquoise focus:border-transparent outline-none transition-all" placeholder="Votre nom" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-turquoise focus:border-transparent outline-none transition-all" placeholder="votre@email.com" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-            <textarea rows={4} className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-turquoise focus:border-transparent outline-none transition-all" placeholder="Votre message..."></textarea>
-          </div>
-          <button type="submit" className="btn-primary w-full flex items-center justify-center">
-            Envoyer <Send size={18} className="ml-2" />
-          </button>
-        </motion.form>
+        <ContactForm />
       </div>
     </section>
   </>
