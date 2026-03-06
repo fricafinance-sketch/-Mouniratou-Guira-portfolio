@@ -60,10 +60,10 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${scrolled || location.pathname !== '/' ? 'bg-white/80 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${isOpen ? 'bg-white py-4' : (scrolled || location.pathname !== '/' ? 'bg-white/90 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6')}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link to="/" className="text-2xl font-display font-bold text-gray-900 relative z-[110]">
-          MG<span className="text-turquoise">.</span>
+          Mon Portfolio<span className="text-turquoise">.</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -436,7 +436,7 @@ const Footer = () => (
     <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
       <div>
         <Link to="/" className="text-2xl font-display font-bold">
-          MG<span className="text-turquoise">.</span>
+          Mon Portfolio<span className="text-turquoise">.</span>
         </Link>
         <p className="text-gray-400 mt-2">Mouniratou Guira © {new Date().getFullYear()}</p>
       </div>
