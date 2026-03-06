@@ -503,19 +503,36 @@ const SkillItem = ({ children }: any) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-turquoise/30 transition-all flex flex-col group"
+      whileHover={{ 
+        y: -8,
+        transition: { duration: 0.3, ease: "easeOut" }
+      }}
+      className="relative bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:border-turquoise/20 transition-all duration-500 flex flex-col group overflow-hidden"
     >
-      <div className="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-turquoise/10 group-hover:text-turquoise flex items-center justify-center mb-4 transition-colors">
-        <Icon size={24} />
+      {/* Hover background accent */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-turquoise/5 rounded-full blur-3xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <div className="relative z-10">
+        <div className="w-14 h-14 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-turquoise group-hover:text-white flex items-center justify-center mb-6 transition-all duration-500 shadow-sm group-hover:shadow-lg group-hover:shadow-turquoise/30">
+          <Icon size={28} />
+        </div>
+        
+        <h4 className="text-gray-900 text-xl font-bold mb-3 group-hover:text-turquoise transition-colors duration-300">
+          {title}
+        </h4>
+        
+        {description && (
+          <p className="text-gray-500 text-sm leading-relaxed font-medium opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+            {description}
+          </p>
+        )}
       </div>
-      <div className="text-gray-900 font-bold mb-1 group-hover:text-turquoise transition-colors">{title}</div>
-      {description && (
-        <div className="text-gray-500 text-xs leading-relaxed line-clamp-3">{description}</div>
-      )}
+
+      {/* Bottom accent line */}
+      <div className="absolute bottom-0 left-0 h-1 bg-turquoise w-0 group-hover:w-full transition-all duration-500 ease-in-out" />
     </motion.div>
   );
 };
