@@ -1,0 +1,27 @@
+{
+  "profile": {
+    "name": "Mouniratou Guira",
+    "title": "Étudiante en Communication & Médias",
+    "email": "mouniratouguira2000@gmail.com",
+    "location": "Bobo-Dioulasso, Burkina Faso",
+    "bio": "Passionnée par la communication digitale et la production médiatique, je m'investis dans la création de contenus impactants et l'analyse des stratégies de communication modernes.",
+    "avatarUrl": "https://i.imgur.com/rnjObYM.jpeg",
+    "cvUrl": "https://drive.google.com/file/d/1BGbLDSfL2dfmWr5vudvJrhQ4O5VTeO8g/view?usp=drivesdk"
+  },
+  "socials": {
+    "linkedin": "https://linkedin.com/in/mouniratou-guira",
+    "instagram": "https://instagram.com/mouniratou_guira",
+    "tiktok": "https://tiktok.com/@mouniratou_guira"
+  },
+  "sections": {
+    "hero": {
+      "tagline": "Communication & Médias",
+      "mainTitle": "Mouniratou Guira"
+    },
+    "projects": {
+      "title": "Mes Projets",
+      "description": "Découvrez mes travaux en production médiatique, communication digitale et analyse stratégique.",
+      "heroImageUrl": "https://i.imgur.com/5N9Ezf8.jpeg"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
@@ -23,12 +23,43 @@ import {
   Quote,
   ExternalLink,
   Search,
-  Filter
+  Filter,
+  Instagram,
+  Settings,
+  Save,
+  Plus,
+  Trash2
 } from 'lucide-react';
+
+// --- Context for Configuration ---
+
+const ConfigContext = createContext<any>(null);
+
+const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
+  const [config, setConfig] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/config.json')
+      .then(res => res.json())
+      .then(data => setConfig(data))
+      .catch(err => console.error('Error loading config:', err));
+  }, []);
+
+  if (!config) return <div className="min-h-screen flex items-center justify-center bg-white"><div className="w-8 h-8 border-4 border-turquoise border-t-transparent rounded-full animate-spin"></div></div>;
+
+  return (
+    <ConfigContext.Provider value={config}>
+      {children}
+    </ConfigContext.Provider>
+  );
+};
+
+const useConfig = () => useContext(ConfigContext);
 
 // --- Components ---
 
 const Navbar = () => {
+  const config = useConfig();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -151,14 +182,22 @@ const Navbar = () => {
                 >
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-6">Me contacter</p>
                   <div className="flex flex-col space-y-4">
-                    <a href="mailto:mouniratouguira2000@gmail.com" className="flex items-center space-x-4 text-gray-600 hover:text-turquoise transition-colors">
+                    <a href={`mailto:${config.profile.email}`} className="flex items-center space-x-4 text-gray-600 hover:text-turquoise transition-colors">
                       <Mail size={20} />
-                      <span className="font-medium">mouniratouguira2000@gmail.com</span>
+                      <span className="font-medium">{config.profile.email}</span>
                     </a>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-4 text-gray-600 hover:text-turquoise transition-colors">
-                      <Linkedin size={20} />
-                      <span className="font-medium">LinkedIn Profile</span>
-                    </a>
+                    <div className="flex space-x-6 pt-4">
+                      {config.socials.linkedin && (
+                        <a href={config.socials.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-turquoise transition-colors">
+                          <Linkedin size={24} />
+                        </a>
+                      )}
+                      {config.socials.instagram && (
+                        <a href={config.socials.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-turquoise transition-colors">
+                          <Instagram size={24} />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               </div>
@@ -209,6 +248,7 @@ const MarkdownSection = ({ title, file, icon: Icon, id, className = "", componen
 };
 
 const Hero = () => {
+  const config = useConfig();
   return (
     <section id="accueil" className="relative min-h-screen flex items-center bg-white overflow-hidden pt-20">
       <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -226,12 +266,12 @@ const Hero = () => {
             transition={{ delay: 0.5 }}
             className="inline-block px-4 py-1 rounded-full bg-turquoise/10 text-turquoise font-medium text-xs mb-8 tracking-widest uppercase"
           >
-            Disponible pour de nouveaux projets
+            {config.sections.hero.tagline}
           </motion.span>
           
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-gray-900 mb-8 leading-[0.9] tracking-tighter">
-            Mouniratou <br />
-            <span className="text-turquoise">Guira</span>
+            {config.sections.hero.mainTitle.split(' ')[0]} <br />
+            <span className="text-turquoise">{config.sections.hero.mainTitle.split(' ').slice(1).join(' ')}</span>
           </h1>
           
           <motion.div 
@@ -242,14 +282,11 @@ const Hero = () => {
           />
           
           <p className="text-xl md:text-2xl text-gray-800 leading-relaxed font-light max-w-xl mb-10">
-            Étudiante en Licence 3 Information et Communication à l’Université Paris 8 – Saint Denis. 
-            <span className="block mt-4 font-medium text-gray-900">
-              Passionnée par l’analyse des médias et les stratégies de communication.
-            </span>
+            {config.profile.bio}
           </p>
 
           <a 
-            href="https://drive.google.com/file/d/1BGbLDSfL2dfmWr5vudvJrhQ4O5VTeO8g/view?usp=drivesdk" 
+            href={config.profile.cvUrl} 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex items-center space-x-3 bg-gray-900 text-white px-8 py-4 rounded-full hover:bg-turquoise transition-all group"
@@ -272,8 +309,8 @@ const Hero = () => {
           
           <div className="w-full h-full rounded-[2rem] overflow-hidden">
             <img 
-              src="https://i.imgur.com/rnjObYM.jpeg" 
-              alt="Mouniratou Guira" 
+              src={config.profile.avatarUrl} 
+              alt={config.profile.name} 
               className="w-full h-full object-cover object-top"
               referrerPolicy="no-referrer"
               loading="eager"
@@ -290,7 +327,7 @@ const Hero = () => {
       <div className="absolute bottom-12 left-6 z-20 hidden lg:block">
         <div className="flex items-center space-x-4 text-gray-400 text-[10px] uppercase tracking-[0.3em] font-black">
           <div className="w-12 h-[1px] bg-gray-300" />
-          <span>Communication & Médias</span>
+          <span>{config.sections.hero.tagline}</span>
         </div>
       </div>
     </section>
@@ -298,6 +335,7 @@ const Hero = () => {
 };
 
 const ProjectHero = () => {
+  const config = useConfig();
   return (
     <section className="relative min-h-[70vh] flex items-center bg-white overflow-hidden pt-20">
       <div className="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -319,8 +357,8 @@ const ProjectHero = () => {
           </motion.span>
           
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold text-gray-900 mb-8 leading-[0.9] tracking-tighter">
-            Mes <br />
-            <span className="text-turquoise">Projets</span>
+            {config.sections.projects.title.split(' ')[0]} <br />
+            <span className="text-turquoise">{config.sections.projects.title.split(' ').slice(1).join(' ')}</span>
           </h1>
           
           <motion.div 
@@ -331,7 +369,7 @@ const ProjectHero = () => {
           />
           
           <p className="text-xl md:text-2xl text-gray-800 leading-relaxed font-light max-w-xl">
-            Découvrez mes travaux en production médiatique, communication digitale et analyse stratégique.
+            {config.sections.projects.description}
           </p>
         </motion.div>
 
@@ -348,7 +386,7 @@ const ProjectHero = () => {
           
           <div className="w-full h-full rounded-[2rem] overflow-hidden">
             <img 
-              src="https://i.imgur.com/5N9Ezf8.jpeg" 
+              src={config.sections.projects.heroImageUrl} 
               alt="Mouniratou Guira - Projets" 
               className="w-full h-full object-cover object-top"
               referrerPolicy="no-referrer"
@@ -431,32 +469,41 @@ const SkillsHero = () => {
   );
 };
 
-const Footer = () => (
-  <footer className="bg-gray-900 text-white py-12">
-    <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-      <div>
-        <Link to="/" className="text-2xl font-display font-bold">
-          Mon Portfolio<span className="text-turquoise">.</span>
-        </Link>
-        <p className="text-gray-400 mt-2">Mouniratou Guira © {new Date().getFullYear()}</p>
-      </div>
-      <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
-        <a 
-          href="https://drive.google.com/file/d/1BGbLDSfL2dfmWr5vudvJrhQ4O5VTeO8g/view?usp=drivesdk" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="bg-white/10 hover:bg-turquoise text-white px-6 py-2 rounded-full transition-all text-sm font-medium border border-white/20"
-        >
-          Télécharger mon CV
-        </a>
-        <div className="flex space-x-6">
-          <a href="#" className="text-gray-400 hover:text-turquoise transition-colors"><Linkedin size={24} /></a>
-          <a href="mailto:mouniratouguira2000@gmail.com" className="text-gray-400 hover:text-turquoise transition-colors"><Mail size={24} /></a>
+const Footer = () => {
+  const config = useConfig();
+  return (
+    <footer className="bg-gray-900 text-white py-12">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div>
+          <Link to="/" className="text-2xl font-display font-bold">
+            Mon Portfolio<span className="text-turquoise">.</span>
+          </Link>
+          <p className="text-gray-400 mt-2">{config.profile.name} © {new Date().getFullYear()}</p>
+        </div>
+        <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8">
+          <a 
+            href={config.profile.cvUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-white/10 hover:bg-turquoise text-white px-6 py-2 rounded-full transition-all text-sm font-medium border border-white/20"
+          >
+            Télécharger mon CV
+          </a>
+          <div className="flex space-x-6">
+            {config.socials.linkedin && (
+              <a href={config.socials.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-turquoise transition-colors">
+                <Linkedin size={24} />
+              </a>
+            )}
+            <a href={`mailto:${config.profile.email}`} className="text-gray-400 hover:text-turquoise transition-colors">
+              <Mail size={24} />
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 // --- Custom Markdown Components ---
 
@@ -586,6 +633,7 @@ const Testimonials = () => {
 };
 
 const BlogSection = () => {
+  const config = useConfig();
   const [selectedPost, setSelectedPost] = useState<any>(null);
 
   const posts = [
@@ -721,8 +769,8 @@ const BlogSection = () => {
                         <User size={24} />
                       </div>
                       <div>
-                        <p className="font-bold text-gray-900">Mouniratou Guira</p>
-                        <p className="text-sm text-gray-500">Étudiante en Communication</p>
+                        <p className="font-bold text-gray-900">{config.profile.name}</p>
+                        <p className="text-sm text-gray-500">{config.profile.title}</p>
                       </div>
                     </div>
                     <button 
@@ -824,9 +872,11 @@ const ContactForm = () => {
 
 // --- Pages ---
 
-const HomePage = () => (
-  <>
-    <Hero />
+const HomePage = () => {
+  const config = useConfig();
+  return (
+    <>
+      <Hero />
     <MarkdownSection id="profil" title="Profil Professionnel" file="profil.md" icon={User} />
     <MarkdownSection 
       id="experiences" 
@@ -864,15 +914,11 @@ const HomePage = () => (
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <div className="w-10 h-10 rounded-full bg-turquoise/10 text-turquoise flex items-center justify-center"><Mail size={20} /></div>
-              <span className="text-gray-700">mouniratouguira2000@gmail.com</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-full bg-turquoise/10 text-turquoise flex items-center justify-center"><Phone size={20} /></div>
-              <span className="text-gray-700">07 59 31 25 39</span>
+              <span className="text-gray-700">{config.profile.email}</span>
             </div>
             <div className="flex items-center space-x-4">
               <div className="w-10 h-10 rounded-full bg-turquoise/10 text-turquoise flex items-center justify-center"><MapPin size={20} /></div>
-              <span className="text-gray-700">Île-de-France (mobilité nationale)</span>
+              <span className="text-gray-700">{config.profile.location}</span>
             </div>
           </div>
         </motion.div>
@@ -880,8 +926,9 @@ const HomePage = () => (
         <ContactForm />
       </div>
     </section>
-  </>
-);
+    </>
+  );
+};
 
 const SkillsPage = () => (
   <div className="pb-24">
@@ -904,6 +951,206 @@ const SkillsPage = () => (
     />
   </div>
 );
+
+const AdminPage = () => {
+  const config = useConfig();
+  const [formData, setFormData] = useState(config);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleChange = (path: string, value: string) => {
+    const newConfig = { ...formData };
+    const keys = path.split('.');
+    let current = newConfig;
+    for (let i = 0; i < keys.length - 1; i++) {
+      current = current[keys[i]];
+    }
+    current[keys[keys.length - 1]] = value;
+    setFormData(newConfig);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        setMessage('Configuration enregistrée ! Rechargez la page pour voir les changements.');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error saving config:', error);
+      setMessage('Erreur lors de l\'enregistrement.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="pt-32 pb-24 max-w-4xl mx-auto px-6">
+      <div className="flex items-center justify-between mb-12">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center">
+            <Settings size={24} />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900">Administration</h1>
+        </div>
+        <button 
+          onClick={handleSave}
+          disabled={isSaving}
+          className="bg-turquoise text-white px-8 py-3 rounded-full font-bold hover:bg-turquoise/80 transition-all flex items-center space-x-2 disabled:opacity-50"
+        >
+          <Save size={20} />
+          <span>{isSaving ? 'Enregistrement...' : 'Enregistrer'}</span>
+        </button>
+      </div>
+
+      {message && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-emerald-50 text-emerald-600 p-4 rounded-2xl mb-8 font-medium text-center border border-emerald-100"
+        >
+          {message}
+        </motion.div>
+      )}
+
+      <div className="space-y-12">
+        {/* Profile Section */}
+        <section className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-3">
+            <User size={20} className="text-turquoise" />
+            <span>Profil Personnel</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Nom Complet</label>
+              <input 
+                type="text" 
+                value={formData.profile.name}
+                onChange={(e) => handleChange('profile.name', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Titre Professionnel</label>
+              <input 
+                type="text" 
+                value={formData.profile.title}
+                onChange={(e) => handleChange('profile.title', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Bio / Présentation</label>
+              <textarea 
+                rows={4}
+                value={formData.profile.bio}
+                onChange={(e) => handleChange('profile.bio', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
+              <input 
+                type="email" 
+                value={formData.profile.email}
+                onChange={(e) => handleChange('profile.email', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Localisation</label>
+              <input 
+                type="text" 
+                value={formData.profile.location}
+                onChange={(e) => handleChange('profile.location', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Lien du CV (Google Drive, etc.)</label>
+              <input 
+                type="text" 
+                value={formData.profile.cvUrl}
+                onChange={(e) => handleChange('profile.cvUrl', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Socials Section */}
+        <section className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-3">
+            <Share2 size={20} className="text-turquoise" />
+            <span>Réseaux Sociaux</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">LinkedIn URL</label>
+              <input 
+                type="text" 
+                value={formData.socials.linkedin}
+                onChange={(e) => handleChange('socials.linkedin', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Instagram URL</label>
+              <input 
+                type="text" 
+                value={formData.socials.instagram}
+                onChange={(e) => handleChange('socials.instagram', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Hero Section */}
+        <section className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-3">
+            <Palette size={20} className="text-turquoise" />
+            <span>Design & Textes Hero</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Tagline (Petit texte)</label>
+              <input 
+                type="text" 
+                value={formData.sections.hero.tagline}
+                onChange={(e) => handleChange('sections.hero.tagline', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">Titre Principal (Nom Prénom)</label>
+              <input 
+                type="text" 
+                value={formData.sections.hero.mainTitle}
+                onChange={(e) => handleChange('sections.hero.mainTitle', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">URL de la Photo de Profil</label>
+              <input 
+                type="text" 
+                value={formData.profile.avatarUrl}
+                onChange={(e) => handleChange('profile.avatarUrl', e.target.value)}
+                className="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-turquoise transition-all"
+              />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
 
 const ProjectsPage = () => (
   <div className="pb-24">
@@ -938,19 +1185,22 @@ const ScrollToTop = () => {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <ScrollToTop />
-      <div className="overflow-x-hidden flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/competences" element={<SkillsPage />} />
-            <Route path="/projets" element={<ProjectsPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <ConfigProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <div className="overflow-x-hidden flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/competences" element={<SkillsPage />} />
+              <Route path="/projets" element={<ProjectsPage />} />
+              <Route path="/admin" element={<AdminPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </ConfigProvider>
   );
 }
